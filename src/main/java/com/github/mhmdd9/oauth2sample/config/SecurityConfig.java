@@ -30,13 +30,20 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         httpSecurity
                 .csrf()
+                .disable()
+                .cors()
+                .and()
+                .authorizeRequests()
+                .antMatchers("/home/public").permitAll()
+                .antMatchers("/home/private").hasRole("ADMIN")
+                .anyRequest().authenticated()
                 .and()
                 .oauth2ResourceServer()
                 .jwt()
-                    .jwtAuthenticationConverter(authenticationConverter())
-                    .and()
+                .jwtAuthenticationConverter(authenticationConverter())
                 .and()
-                    .oauth2Client();
+                .and()
+                .oauth2Client();
         return httpSecurity.build();
     }
 
@@ -48,6 +55,7 @@ public class SecurityConfig {
 
     @Bean
     public GrantedAuthoritiesMapper userAuthoritiesMapper() {
+
         return authorities -> {
             Set<GrantedAuthority> mappedAuthorities = new HashSet<>();
 
